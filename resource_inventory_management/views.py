@@ -97,7 +97,7 @@ def retrieve_resource(request, Service_id):
 @permission_classes([IsAuthenticated])
 def create_resource(request):
     data = request.data
-    service_id = data.get("service_id")
+    service_id = data.get("name")
     if not service_id:
         return Response({"error": "VLAN value required"}, status=400)
 
