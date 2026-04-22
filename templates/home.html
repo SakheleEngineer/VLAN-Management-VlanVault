@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Virtual LAN Database</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% load static %}
+
+<!-- Bootstrap -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" 
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<!-- Fonts & Icons -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
+<link rel="stylesheet" href="/static/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+
+<!-- Mapbox & Turf -->
+<script src='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css' rel='stylesheet'/>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+
+<link rel="stylesheet" href="{% static 'assets/style.css' %}">
+</head>
+
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="logo"><img src="{% static 'logo.png' %}" width="100%" alt="COMSOL"></div>
+    <nav class="nav flex-column">
+        <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+        <a class="nav-link" href="{% url 'tagrange-list-view' %}"><i class="fas fa-tags"></i> Tag Sets</a>
+        <a class="nav-link" href="{% url 'datacenter-list-view' %}"><i class="fas fa-database"></i> Datacenters</a>
+        <a class="nav-link" href="{% url 'company-list-view' %}"><i class="fas fa-building"></i> Companies</a>
+        <a class="nav-link" href="{% url 'history-list-view' %}"><i class="fas fa-tasks"></i> Tag Activities</a>
+    </nav>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content container-fluid">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">AUTO RESERVE TAG</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Service ID</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="Requested Item Number" placeholder="e.g, CN00000001">
+            <small id="emailHelp" class="form-text text-muted">Enter the Service ID from the Requested Item</small>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+            <label class="form-check-label" for="exampleCheck1">Multi-tags/Q-in-Q/802.1ad</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+        
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal2">
+          Reserve Tag
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block content %}
+
+
+<header class="topbar">
+    <h5 class="mt-1">VLAN ( Virtual Local Area Network ) DATABASE</h5>
+    <div class="search-box">
+        <input type="text" class="form-control" placeholder="Search all ...">
+        <button class="btn btn-sm signout-btn ml-2">Sign out</button>
+    </div>
+</header>
+<!-- Tabs -->
+
+<div class="tabs mt-2">
+
+      <button type="button" class="btn btn-custom-blued-flex btn btn-sm align-items-center justify-content-center" data-toggle="modal" data-target="#exampleModal">
+           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-database-up me-3 mr-1" viewBox="0 0 16 16">
+            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.354-5.854 1.5 1.5a.5.5 0 0 1-.708.708L13 11.707V14.5a.5.5 0 0 1-1 0v-2.793l-.646.647a.5.5 0 0 1-.708-.708l1.5-1.5a.5.5 0 0 1 .708 0"/>
+            <path d="M12.096 6.223A5 5 0 0 0 13 5.698V7c0 .289-.213.654-.753 1.007a4.5 4.5 0 0 1 1.753.25V4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.5 4.5 0 0 1-.813-.927Q8.378 15 8 15c-1.464 0-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13h.027a4.6 4.6 0 0 1 0-1H8c-1.464 0-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10q.393 0 .774-.024a4.5 4.5 0 0 1 1.102-1.132C9.298 8.944 8.666 9 8 9c-1.464 0-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777M3 4c0-.374.356-.875 1.318-1.313C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4"/>
+          </svg> AUTO RESERVE TAG
+          </button>
+</div>
+<hr/>
+<!-- Table -->
+<h5 style="color: gray;">Recently Updated TAG (VLAN ID) Sets</h5>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead style="background-color: gray;">
+                    <tr>
+                        <th>Name</th>
+                        <th>Service Tag</th>
+                        <th>Region</th>
+                        <th>Data Center</th>
+                        <th>Company</th>
+                        <th>Start</th>
+                        <th>End</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tagranges %}
+                        <tr class="record-row"
+                            data-url="{% url 'tag-list-view' t.uuid %}">
+                            <td>{{ t.name }}</td>
+                            <td>
+                                {% with t.stags.all as stag_list %}
+                                    {% if stag_list|length > 1 %}
+                                        {% for stag in stag_list %}
+                                            {{ stag.name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    {% elif stag_list|length == 1 %}
+                                        {{ stag_list.0.name }}
+                                    {% else %}
+                                        .*
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>{{ t.datacenter.region }}</td>
+                            <td>{{ t.datacenter.name }}</td>
+                            <td>{{ t.company.name }}</td>
+                            <td><strong>{{ t.vlan_start }}</strong></td>
+                            <td><strong>{{ t.vlan_end }}</strong></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+{% endblock content %}
+</main>
+
+</div>
+
+<!-- JS -->
+<script src="{% static 'assets/vendor/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/vendor/js-cookie/js.cookie.js' %}"></script>
+<script src="{% static 'assets/vendor/jquery.scrollbar/jquery.scrollbar.min.js' %}"></script>
+<script src="{% static 'assets/vendor/jquery-scroll-lock/dist/jquery-scrollLock.min.js' %}"></script>
+<script src="{% static 'mdb5-free-standard/js/mdb.umd.min.js' %}"></script>
+
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const rows = document.querySelectorAll('.record-row');
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+
+        // Redirect and replace current page in history
+     window.location.replace(row.dataset.url);
+
+   
+      });
+    });
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const rows = document.querySelectorAll("table.table-hover tbody tr");
+    let current = -1; // No row selected initially
+
+    // Helper to select a row
+    function selectRow(index) {
+        // Remove previous highlight
+        rows.forEach(r => r.classList.remove("active-row"));
+        
+        // Clamp index between 0 and last
+        current = Math.max(0, Math.min(index, rows.length - 1));
+        
+        // Apply highlight
+        const row = rows[current];
+        row.classList.add("active-row");
+        
+        // Scroll into view gently
+        row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+
+    // Arrow key navigation
+    document.addEventListener("keydown", function (e) {
+        if (!rows.length) return;
+
+        // Only handle keys when not typing in inputs
+        if (["ArrowDown", "ArrowUp", "Tab"].includes(e.key)) {
+            e.preventDefault();
+        } else {
+            return;
+        }
+
+        if (e.key === "ArrowDown") {
+            selectRow(current + 1);
+        }
+        if (e.key === "ArrowUp") {
+            selectRow(current - 1);
+        }
+        if (e.key === "Tab") {
+            // Move down on Tab
+            selectRow(current + 1);
+        }
+    });
+
+    // Mouse click selects row
+    rows.forEach((row, index) => {
+        row.addEventListener("click", () => {
+            selectRow(index);
+        });
+    });
+
+    // Initialize focus to first row
+    if (rows.length > 0) {
+        selectRow(0);
+    }
+});
+</script>
+
+
+<script>
+    // Select the button that opens the second modal
+  const launchSecondModalBtn = document.querySelector('[data-target="#exampleModal2"]');
+  const firstModal = document.getElementById('exampleModal');
+  
+  launchSecondModalBtn.addEventListener('click', function () {
+    // Hide the first modal
+    $('#exampleModal').modal('hide');
+    
+    // After first modal is fully hidden, show the second modal
+    $('#exampleModal').on('hidden.bs.modal', function () {
+      $('#exampleModal2').modal('show');
+      
+      // Remove the event listener to prevent multiple triggers
+      $('#exampleModal').off('hidden.bs.modal');
+    });
+  });
+document.addEventListener("DOMContentLoaded", function () {
+    var sidebar = document.getElementById("sidebarMenu");
+    var main = document.querySelector("main");
+
+    function applyMargin() {
+        if (window.innerWidth >= 768) {  // Bootstrap md breakpoint
+            if (sidebar && main) {
+                var sidebarWidth = sidebar.offsetWidth;
+                main.style.marginLeft = sidebarWidth + "px";
+            }
+        } else {
+            if (main) {
+                main.style.marginLeft = ""; // Reset margin on small devices
+            }
+        }
+    }
+
+    applyMargin(); // Apply on load
+
+    // Optional: Reapply on window resize for responsiveness
+    window.addEventListener("resize", applyMargin);
+});
+</script>
+  
+</body>
+</html>

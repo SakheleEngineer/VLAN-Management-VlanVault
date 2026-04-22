@@ -1,0 +1,322 @@
+{% extends 'home.html' %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12">
+        <header class="topbar">
+            <h5 class="mt-1">NETWORK TAG SETS (RANGES)</h5>
+            <div class="search-box">
+                <input type="text" id="search-input" class="form-control" placeholder="Search tag sets...">
+                <button class="btn btn-sm signout-btn ml-2">Sign out</button>
+            </div>
+        </header>
+
+        <div class="tabs mt-2">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <button type="button"
+                        class="btn-custom-blue btn btn-sm d-flex align-items-center"
+                        data-toggle="modal"
+                        data-target="#EditTagSet">
+                        Create Tag Set
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead style="background-color: gray;">
+                    <tr>
+                        <th>Name</th>
+                        <th>Service Tag</th>
+                        <th>Free VLAN ID's</th>
+                        <th>Region</th>
+                        <th>Data Center</th>
+                        <th>Company</th>
+                        <th>Start</th>
+                        <th>End</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for t in tagsets %}
+                    <tr class="record-row"
+                        data-url="{% url 'tag-list-view' t.uuid %}">
+
+                        <td>{{ t.name }}</td>
+                        <td>
+                            {% with t.stags.all as stag_list %}
+                                    {% if stag_list|length > 1 %}
+                                        {% for stag in stag_list %}
+                                            {{ stag.name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    {% elif stag_list|length == 1 %}
+                                        {{ stag_list.0.name }}
+                                    {% else %}
+                                        .*
+                                    {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>{{ t.free_vlans }}</td>
+                        <td>{{ t.datacenter.region }}</td>
+                        <td>{{ t.datacenter.name }}</td>
+                        <td>{{ t.company.name }}</td>
+                        <td><strong>{{ t.vlan_start }}</strong></td>
+                        <td><strong>{{ t.vlan_end }}</strong></td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- CREATE TAG SET MODAL -->
+<!-- ========================= -->
+<div class="modal fade" id="EditTagSet" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Create Tag Set</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="editTagSetForm">
+          {% csrf_token %}
+
+          <div class="row">
+            {% for field in rangeForm %}
+              {% if field.name != "stags" %}
+                <div class="col-md-6 mb-2">
+                  <label>{{ field.label }}</label>
+                  {{ field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+
+            <div class="col-md-12">
+              <label>STags</label>
+              <select id="stagSelect" class="form-control" multiple>
+                <option value="">-- No STag --</option>
+              </select>
+
+              <div class="mt-2 d-flex">
+                <input type="number" id="newStagName" class="form-control mr-2" placeholder="Create new STag">
+                <button type="button" class="btn btn-primary btn-sm" id="createStagBtn">Add</button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="saveTagSetBtn">Save</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- ERROR MODAL -->
+<!-- ========================= -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Error Saving Tag Set</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <ul id="errorList" class="mb-0"></ul>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{{ tagStagsIds|json_script:"tagStagsIdsJSON" }}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const stagSelect = document.getElementById("stagSelect");
+    const createBtn = document.getElementById("createStagBtn");
+    const stagInput = document.getElementById("newStagName");
+    const saveBtn = document.getElementById("saveTagSetBtn");
+    const form = document.getElementById("editTagSetForm");
+
+    const selectedStagIds = JSON.parse(document.getElementById("tagStagsIdsJSON").textContent);
+
+    // =========================
+    // LOAD STAGS
+    // =========================
+    fetch("/stags/")
+    .then(res => res.json())
+    .then(data => {
+        (data.results || data).forEach(stag => {
+            const option = document.createElement("option");
+            option.value = stag.id;
+            option.text = stag.name;
+            if (selectedStagIds.includes(stag.id)) option.selected = true;
+            stagSelect.appendChild(option);
+        });
+    });
+
+    // =========================
+    // CREATE STAG
+    // =========================
+    createBtn.addEventListener("click", () => {
+        const name = stagInput.value.trim();
+        if (!name) return alert("Enter a name");
+
+        fetch("/stags/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ name })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const option = document.createElement("option");
+            option.value = data.id;
+            option.text = data.name;
+            option.selected = true;
+            stagSelect.appendChild(option);
+            stagInput.value = "";
+        });
+    });
+
+    // =========================
+    // SAVE TAG SET
+    // =========================
+    saveBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        let formDataObj = {};
+
+        new FormData(form).forEach((value, key) => {
+            if (value !== "") formDataObj[key] = value;
+        });
+
+        formDataObj.stags = Array.from(stagSelect.selectedOptions)
+            .map(opt => opt.value)
+            .filter(v => v !== "");
+
+        fetch("/tagranges/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify(formDataObj)
+        })
+        .then(async res => {
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                throw { detail: "Invalid server response (not JSON)" };
+            }
+
+            if (!res.ok) {
+                throw data;
+            }
+
+            return data;
+        })
+        .then(() => {
+            location.reload();
+        })
+        .catch(err => {
+
+            console.error("Backend Errors:", err);
+
+            $('#EditTagSet').modal('hide');
+
+            const errorList = document.getElementById("errorList");
+            errorList.innerHTML = "";
+
+            let messages = [];
+
+            if (typeof err === "string") {
+                messages.push(err);
+            }
+            else if (err && err.detail) {
+                messages.push(err.detail);
+            }
+            else if (Array.isArray(err)) {
+                err.forEach(e => messages.push(e));
+            }
+            else if (typeof err === "object") {
+                Object.keys(err).forEach(field => {
+                    const val = err[field];
+
+                    if (Array.isArray(val)) {
+                        val.forEach(v => messages.push(`${field}: ${v}`));
+                    } else {
+                        messages.push(`${field}: ${val}`);
+                    }
+                });
+            }
+            else {
+                messages.push("Unknown backend error");
+            }
+
+            messages.forEach(msg => {
+                const li = document.createElement("li");
+                li.textContent = msg;
+                errorList.appendChild(li);
+            });
+
+            $('#errorModal').modal('show');
+        });
+    });
+
+    // =========================
+    // ROW CLICK REDIRECT (FIX RESTORED)
+    // =========================
+    document.querySelectorAll(".record-row").forEach(row => {
+        row.addEventListener("click", function () {
+            const url = this.getAttribute("data-url");
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+
+    // =========================
+    // MODAL SWITCH FIX
+    // =========================
+    $('#errorModal').on('hidden.bs.modal', function () {
+        $('#EditTagSet').modal('show');
+    });
+
+});
+</script>
+
+{% endblock %}

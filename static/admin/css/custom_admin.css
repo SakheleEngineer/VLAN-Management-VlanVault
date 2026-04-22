@@ -1,0 +1,144 @@
+/* Change main background */
+body {
+    background-color: white;
+}
+
+/* Content area */
+#content {
+    background-color: white;
+}
+
+/* Sidebar */
+#nav-sidebar {
+    background-color:white;
+}
+
+/* Header */
+#header {
+    background-color: blue;
+}
+
+
+/* Force light theme and disable dark mode */
+:root {
+    color-scheme: light !important;
+}
+
+/* Override dark mode media query */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #0d6efd;
+        --secondary: #6c757d;
+        --body-bg: #f8f9fa;
+        --body-fg: blue;
+        --header-bg: #ffffff;
+        --header-fg: blue;
+        --sidebar-bg: #f1f1f1;
+        --link-fg: #0d6efd;
+    }
+
+    body {
+        background-color: #f8f9fa !important;
+        color: blue !important;
+    }
+}
+
+/* Login page background */
+/* Container styling (card-like) */
+#login-form {
+    background-color: #fff;
+    padding: 1.5rem 1.2rem;
+    border: 1px solid #dee2e6; /* light gray border */
+    border-radius: 0.25rem; /* small rounded corners */
+    box-shadow: none;
+    max-width: 400px;
+    margin: 40px auto; /* center horizontally with some top margin */
+    margin-top: 70px;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Label styling */
+#login-form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 200;
+    color: gray; /* dark text */
+}
+
+/* Input fields styling */
+#login-form input[type="text"],
+#login-form input[type="password"] {
+    width: 100%;
+    padding: 0.2rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-sizing: border-box;
+}
+
+#login-form input[type="text"]::placeholder,
+#login-form input[type="password"]::placeholder {
+    color: #6c757d; /* gray placeholder */
+    opacity: 1;
+}
+
+/* Input focus style */
+#login-form input[type="text"]:focus,
+#login-form input[type="password"]:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Helper text under email input */
+#login-form .helper-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Checkbox container */
+#login-form .checkbox-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#login-form .checkbox-row input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+/* Submit button */
+#login-form input[type="submit"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #0d6efd;
+    border: 1px solid #0d6efd;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+#login-form input[type="submit"]:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Error messages styling */
+.form-row .errorlist {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+

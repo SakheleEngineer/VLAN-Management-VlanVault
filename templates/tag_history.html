@@ -1,0 +1,100 @@
+{% extends 'home.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12"> 
+            <header class="topbar">
+          <h5 class="mt-1">TAG ACTIVITIES AND HISTORY</h5>
+            <div class="search-box">
+                <input type="text" class="form-control" id="vlan-history-infor" placeholder="Search tag ...">
+                <button class="btn btn-sm signout-btn ml-2">Sign out</button>
+            </div>
+        </header>
+        
+        <!-- Tabs -->
+        <div class="tabs mt-2">
+            <ul class="nav nav-pills">
+                  <li class="nav-item">
+                </li>
+            </ul>
+        </div>
+    <style>
+     
+    </style>
+
+    <h5>VLAN ID: {{ tag_id }}</h5>
+
+    <table class="table table-sm table-striped history-table table-sm">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Changes</th>
+            </tr>
+        </thead>
+    <tbody>
+    {% for item in changes_list %}
+    <tr>
+        <td><small>{{ item.history.history_date }}</small></td>
+        <td><small>{{ item.history.history_user }}</small></td>
+        <td>
+            {% if item.history.history_type == '+' %}
+                <span class="badge badge-success"><small>Reserved Tag</small></span>
+            {% elif item.history.history_type == '~' %}
+                <span class="badge badge-warning"><small>Updated</small></span>
+            {% elif item.history.history_type == '-' %}
+                <span class="badge badge-danger"><small>Decommissioned</small></span>
+            {% endif %}
+        </td>
+        <td>
+            {% for field, values in item.changes.items %}
+                <div class="change-item">
+                    <div class="change-field"><small>{{ field }}:</small></div>
+                    
+                    {% if item.history.history_type == '+' %}
+                        <div class="change-new"><small>value: {{ values }}</small></div>
+
+                    {% elif item.history.history_type == '-' %}
+                        <div class="change-old"><small>value: {{ values }}</small></div>
+
+                    {% else %}
+                        <div class="change-old"><small>old: {{ values.old }}</small></div>
+                        <div class="arrow"><small>→</small></div>
+                        <div class="change-new"><small>new: {{ values.new }}</small></div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <small>No changes</small>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+    </table>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('vlan-history-infor');
+    const tableBody = document.querySelector('.history-table tbody');
+
+    input.addEventListener('keyup', function () {
+        const filter = input.value.toLowerCase();
+        const rows = tableBody.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            // Get all text in the row (Date, User, Action, Changes)
+            const rowText = row.textContent.toLowerCase();
+            if (rowText.indexOf(filter) > -1) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}

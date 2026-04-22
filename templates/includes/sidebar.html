@@ -1,0 +1,338 @@
+<Style>
+
+.log-container {
+    background-color: #d5d5d5;
+    color: #d1d5db;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 13px;
+    padding: 12px;
+    border-radius: 0.1px;
+    height: 400px;
+    overflow-y: scroll;
+    border: 1px solid gray;
+}
+
+.log-line.info { color: #22c55e; }
+.log-line.warn { color: #facc15; }
+.log-line.error { color: #ef4444; }
+
+
+
+/* Individual log lines */
+.log-line {
+    padding: 2px 0;
+    white-space: pre-wrap;
+}
+
+/* Log levels */
+.log-line.info {
+    color: #22c55e;
+}
+
+.log-line.warn {
+    color: #facc15;
+}
+
+.log-line.error {
+    color: #ef4444;
+}
+
+/* Scrollbar (optional, modern browsers) */
+.log-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+    background: #374151;
+
+}
+
+.log-container::-webkit-scrollbar-track {
+    background: gray;
+}
+
+/* Chrome, Edge, Safari */
+.log-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 6px;
+}
+
+.log-container::-webkit-scrollbar-track {
+    background-color: gray;
+}
+
+/* Firefox */
+.log-container {
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #8b8c8e;
+}
+
+/* Sidebar container */
+#sidebarMenu {
+    background-color: f2f2f2;
+    border-right: 1px solid rgb(199, 199, 199);
+}
+
+/* Nav list spacing */
+#sidebarMenu .nav {
+    padding: 0 10px;
+}
+
+/* Individual nav items as "table rows" */
+#sidebarMenu .nav-link {
+    background-color: #ffffff;
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    border-radius: 2px;
+    font-weight: 500;
+
+    /* Table-like shadow */
+    box-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.06),
+        0 1px 3px rgba(0, 0, 0, 0.1);
+
+    transition: 
+        background-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+/* Icon alignment */
+#sidebarMenu .nav-link svg {
+    opacity: 0.85;
+}
+
+/* Hover effect */
+#sidebarMenu .nav-link:hover {
+    background-color: #f3f4f6;
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 2px 4px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+    color: #111827;
+}
+
+/* Active tab */
+/* #sidebarMenu .nav-link.active,
+#sidebarMenu .nav-link[aria-current="page"] {
+    background-color: #e5e7eb;
+    color: #111827;
+    box-shadow: 
+        inset 0 0 0 1px #d1d5db,
+        0 2px 6px rgba(0, 0, 0, 0.12);
+} */
+
+/* Remove default Bootstrap underline/focus noise */
+#sidebarMenu .nav-link:focus {
+    box-shadow: none;
+}
+
+
+
+</Style>
+    
+    
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+      <div class="container-fluid position-sticky  pt-3">
+   <ul class="nav flex-column">
+     <li class="nav-item mt-3">
+          <a class="nav-link d-flex align-items-center" aria-current="page" href="{% url 'home' %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-house-fill me-2 mr-2" viewBox="0 0 16 16">
+            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293z"/>
+            <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293z"/>
+          </svg>
+              Home
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" aria-current="page" href="{% url 'tagrange-list-view' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-folder  me-2 mr-2" viewBox="0 0 16 16">
+              <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a2 2 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139q.323-.119.684-.12h5.396z"/>
+            </svg>
+              Tag Sets
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" aria-current="page" href="{% url 'datacenter-list-view' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-database-fill  me-2 mr-2" viewBox="0 0 16 16">
+            <path d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"/>
+            <path d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/>
+            <path d="M2 9.161V10c0 1.007.875 1.755 1.904 2.223C4.978 12.711 6.427 13 8 13s3.022-.289 4.096-.777C13.125 11.755 14 11.007 14 10v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/>
+            <path d="M2 12.161V13c0 1.007.875 1.755 1.904 2.223C4.978 15.711 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13v-.839c-.457.432-1.004.751-1.49.972-1.232.56-2.828.867-4.51.867s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"/>
+          </svg>
+            Data Centers
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="{% url 'company-list-view' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-building-fill me-2 mr-2" viewBox="0 0 16 16">
+              <path d="M3 0a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h3v-3.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V16h3a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1zm1 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM7.5 5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+            </svg>
+            Companies
+          </a>
+        </li>
+
+        <!-- <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-wide me-2 mr-2" viewBox="0 0 16 16">
+              <path d="M8.932.727c-.243-.97-1.62-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.62 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.62.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.62 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434zM8 12.997a4.998 4.998 0 1 1 0-9.995 4.998 4.998 0 0 1 0 9.996z"/>
+            </svg>
+            Settings 
+          </a>
+        </li> -->
+
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="#">
+           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-database-down  me-2 mr-2" viewBox="0 0 16 16">
+              <path d="M12.5 9a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7m.354 5.854 1.5-1.5a.5.5 0 0 0-.708-.708l-.646.647V10.5a.5.5 0 0 0-1 0v2.793l-.646-.647a.5.5 0 0 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0"/>
+              <path d="M12.096 6.223A5 5 0 0 0 13 5.698V7c0 .289-.213.654-.753 1.007a4.5 4.5 0 0 1 1.753.25V4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16c.536 0 1.058-.034 1.555-.097a4.5 4.5 0 0 1-.813-.927Q8.378 15 8 15c-1.464 0-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13h.027a4.6 4.6 0 0 1 0-1H8c-1.464 0-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10q.393 0 .774-.024a4.5 4.5 0 0 1 1.102-1.132C9.298 8.944 8.666 9 8 9c-1.464 0-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777M3 4c0-.374.356-.875 1.318-1.313C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4"/>
+            </svg>
+            Tag History
+          </a>
+        </li>
+      </ul>
+
+
+        <!-- <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+          <span>Virtual Local Area Networks Activities</span>
+          <a class="link-secondary" href="#" aria-label="Add a new report">
+            <span data-feather="plus-circle"></span>
+          </a>
+        </h6> -->
+        <!-- <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              <div class="log-container" id="vlan-log">
+      
+               </div>
+             
+            </a>
+          </li>
+  
+        </ul> -->
+      </div>
+    </nav>
+
+
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+</script>
+
+<script>
+
+let url = `ws://${window.location.host}/ws/vlan-logs/`
+const socket = new WebSocket(url);
+console.log(socket)
+socket.onmessage = function (event) {
+    const log = JSON.parse(event.data);
+
+    alert(log)
+
+    // const container = document.getElementById("vlan-log");
+    // const div = document.createElement("div");
+
+    // div.classList.add("log-line", log.level.toLowerCase());
+    // div.textContent = `[${log.level}] VLAN ${log.vlan_id}: ${log.message}`;
+
+    // container.appendChild(div);
+    // container.scrollTop = container.scrollHeight;
+};
+
+socket.onclose = () => console.warn("VLAN log socket closed");
+
+async function addVlanLog(vlan_id, message, level='INFO') {
+    await fetch("/vlan-activities/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ vlan_id, message, level })
+    });
+}
+
+// addVlanLog(652, "Vlan added ", level='INFO') 
+
+// const ws = new WebSocket("ws://127.0.0.1:8000/ws/vlan-logs/");
+
+// ws.onopen = () => console.log("CONNECTED");
+// ws.onerror = e => console.error("ERROR", e);
+// ws.onmessage = e => console.log("MSG", e.data);
+
+// fetchVlanLogs();
+// setInterval(fetchVlanLogs, 5000);
+
+</script>
+
+
+
+
+<!-- 
+<script>
+// Fetch and display logs
+async function fetchVlanLogs() {
+    const res = await fetch("/vlan-activities/?limit=50");
+    const data = await res.json();
+    const logs = data.results || data; // DRF pagination
+
+    const container = document.getElementById("vlan-log");
+    container.innerHTML = "";
+    logs.reverse().forEach(log => {
+        const div = document.createElement("div");
+        div.classList.add("log-line", log.level.toLowerCase());
+        div.textContent = `[${log.level}] VLAN ${log.vlan_id}: ${log.message}`;
+        container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+}
+
+// Add new log
+async function addVlanLog(vlan_id, message, level='INFO') {
+
+    const res = await fetch("/vlan-activities/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken   // ✅ CSRF token here
+        },
+        body: JSON.stringify({ vlan_id, message, level })
+    });
+    if(res.ok) fetchVlanLogs(); // refresh logs after adding
+    else console.error("Failed to add log:", res.status);
+
+ // refresh log after adding
+}
+
+// Example usage:
+// addVlanLog(887, "Port Gi0/1 shutdown executed", "INFO");
+
+addVlanLog(113,"CLAN was reserved");
+// Auto refresh
+fetchVlanLogs();
+setInterval(fetchVlanLogs, 5000);
+</script> -->

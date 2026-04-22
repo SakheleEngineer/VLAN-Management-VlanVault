@@ -1,0 +1,116 @@
+{% extends 'home.html' %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12"> 
+            <header class="topbar">
+          <h5 class="mt-1">TAG ACTIVITIES</h5>
+            <div class="search-box">
+                <input type="text" class="form-control" id="vlan-history" placeholder="Search tag ...">
+                <button class="btn btn-sm signout-btn ml-2">Sign out</button>
+            </div>
+        </header>
+        
+        <!-- Tabs -->
+        <div class="tabs mt-2">
+          
+            <h5 class="mt-1">VLAN Operational History & Activities</h5>
+            <P class="mt--2 mb--2"><small>Detailed Audit of VLAN Changes, Actions, and Operator Activity Across the Network Infrastructure</small></P>
+        
+        </div>
+
+<div class="table-responsive mt--3">
+    <table class="table table-striped table-hover table-sm history-table " >
+        <thead>
+            <tr>
+                <th scope="col">Vlan ID</th>
+                <th scope="col">Division</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Name</th>
+                <th scope="col">Access HS</th>
+                <th scope="col">Sector</th>
+                <th scope="col">Usage</th>
+                <th scope="col">Service</th>
+                <th scope="col">Speed</th>
+                <th scope="col">Circ No</th>
+                <th scope="col">Service ID</th>
+                <th scope="col">Tag Range</th>
+                <th scope="col">STag</th>
+            </tr>
+        </thead>
+        <tbody id="vlan-table-body">
+            {% for row in tags %}
+                    <tr class="tag-row"
+                        data-id="{{ row.vlan }}"
+                        style="cursor:pointer;">
+                        <td><strong>{{ row.vlan }}</strong></td>
+                        <td><small>{{ row.division }}</small></td>
+                        <td><small>{{ row.customer }}</small></td>
+                        <td><small>{{ row.name }}</small></td>
+                        <td><small>{{ row.access_hs }}</small></td>
+                        <td><small>{{ row.sector }}</small></td>
+                        <td><small>{{ row.usage }}</small></td>
+                        <td><small>{{ row.service }}</small></td>
+                        <td><small>{{ row.speed }}</small></td>
+                        <td><small>{{ row.circ_no }}</small></td>
+                        <td><small>{{ row.Service_id }}</small></td>
+                        <td><small>{{ row.vlan_range.name }}</small></td>
+                        <td><small>
+                                {% with row.vlan_range.stags.all as stag_list %}
+                                    {% if stag_list|length > 1 %}
+                                        {% for stag in stag_list %}
+                                            {{ stag.name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    {% elif stag_list|length == 1 %}
+                                        {{ stag_list.0.name }}
+                                    {% else %}
+                                        .*
+                                    {% endif %}
+                                {% endwith %}</small>
+                        </td>
+           
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".tag-row").forEach(row => {
+        row.addEventListener("click", function () {
+            const id = this.getAttribute("data-id");
+            window.location.href = `/tags/history/${id}/`;
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('vlan-history');
+    const tableBody = document.querySelector('.history-table tbody');
+
+    input.addEventListener('keyup', function () {
+        const filter = input.value.toLowerCase();
+        const rows = tableBody.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            // get the text content of the entire row
+            const text = row.textContent.toLowerCase();
+            if (text.indexOf(filter) > -1) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+});
+</script>
+
+
+
+
+{% endblock content %}

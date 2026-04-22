@@ -1,0 +1,286 @@
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI", Arial, sans-serif; }
+body { background:#f4f6f9; color:#333; }
+
+/* Layout */
+.layout { display:flex; min-height:100vh; }
+
+/* Sidebar */
+.sidebar {
+    width: 280px; /* increased width like ServiceNow */
+    background:#1f2937;
+    color:#fff;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+}
+.sidebar .logo {
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:30px;
+    color:#f9fafb;
+}
+.sidebar .nav-link {
+    display:flex;
+    align-items:center;
+    gap:8px; /* wider gap for larger sidebar */
+    background:#374151;
+    padding:12px 19px; /* horizontal padding increased */
+    border-radius:6px;
+    color:#fff;
+    margin-bottom:8px;
+    font-weight:500;
+}
+.sidebar .nav-link i {
+    min-width:20px; /* more space for icons */
+    text-align:center;
+    color:#9ca3af;
+}
+.sidebar .nav-link:hover {
+    background:#374151;
+    color:#fff;
+}
+
+/* Main content */
+.main-content { flex:1; padding:30px; }
+
+.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom: -10px; }
+.topbar h1 { font-size:28px; font-weight:600; margin:0;word-spacing:0cap ; }
+.search-box { display:flex; align-items:center; gap:8px; }
+.signout-btn { padding:7px 15px; border-radius:4px; border:none; background:#dc3545; color:#fff; cursor:pointer; transition:0.3s; }
+.signout-btn:hover { background:#bb2d3b; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+
+/* Tabs */
+.tabs .btn { padding:8px 14px; border-radius:4px;border-color: gray; background:#00319f; color:white; margin-right:10px;margin-top: 10px; }
+.tabs .btn:hover, .tabs .btn.active { background:gray; color:#fff; }
+
+/* Table */
+/* Table */
+.table {
+    margin-top: 25px;
+    background: #f9fafb;
+    border-radius: 6px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.08);
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+/* Ensure headers and data cells align */
+.table th,
+.table td {
+    padding-left: 12px;
+}
+
+#tag-table {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Header */
+.table th {
+    background: #374151;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+/* Rows */
+.table td {
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Body background */
+.table tbody {
+    background: #f3f4f6;
+}
+
+/* Hover */
+.table tbody tr:hover {
+    background: #374151;
+    color: #fff;
+    transition: 0.2s;
+}
+.nav-pills .nav-item {
+    margin-right: 7px; /* Adjust spacing as needed */
+}
+    /* Custom Button */
+    .btn-custom-blue {
+        padding:8px 14px; border-radius:4px;border-color: gray; background:#00319f; color:white; margin-right:10px;
+    }
+
+    /* Fixed Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh; /* full viewport height */
+        z-index: 1000; /* above content if needed */
+        overflow-y: auto; /* scroll if sidebar content overflows */
+    }
+
+    /* Main content moves right to make room for sidebar */
+    .main-content {
+        margin-left: 280px; /* same as sidebar width */
+        padding: 30px;
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 768px) {
+        .sidebar {
+            display: none; /* hide sidebar on small devices */
+        }
+        .main-content {
+            margin-left: 0; /* reset margin */
+            padding: 20px;
+        }
+    }
+@media (max-width:768px){
+    .sidebar { display:none; }
+    .main-content { padding:20px; }
+    .topbar { flex-direction:column; align-items:flex-start; gap:10px; }
+    .search-box input { width:100%; }
+}
+
+/* Fixed Topbar */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 280px; /* adjust if you have a fixed sidebar */
+    right: 0;
+    height: 70px; /* adjust as needed */
+    background: #f4f6f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    z-index: 110; /* stays above sidebar and content */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Adjust main content padding to not overlap topbar */
+.main-content {
+    padding-top: 80px; /* topbar height + extra spacing */
+}
+.sidebar .logo {
+    display: flex;
+    justify-content: center;   /* center horizontally */
+    align-items: center;
+    margin-bottom: 30px;
+}
+.sidebar .logo img {
+    width: 80%; /* slightly smaller than current 80% */
+}
+
+.table-responsive {
+    border-radius: 4px;
+    /* overflow: hidden; ensures the table corners follow the radius */
+    overflow-x: auto;
+}
+
+.table {
+    border-radius: 4px;
+}
+
+/* round the header corners */
+.table thead th:first-child {
+    border-top-left-radius: 4px;
+}
+
+.table thead th:last-child {
+    border-top-right-radius: 4px;
+}
+
+/* round the bottom corners */
+.table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 4px;
+}
+
+.table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 4px;
+}
+
+
+.tag-history-table th {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+    .topbar {
+        left: 0;
+        width: 100%;
+    }
+    .main-content {
+        padding-top: 100px; /* keep space for topbar */
+    }
+}
+
+   /* General styling */
+        h5 {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .history-table th {
+            padding-top: 14px;
+            padding-bottom: 14px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .badge-success { background-color: #d1fae5; color: #065f46; }
+        .badge-warning { background-color: #fef3c7; color: #78350f; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+
+        .change-old { color: #dc2626; font-weight: 500; }
+        .change-new { color: #16a34a; font-weight: 500; }
+
+        .change-item {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 4px;
+            align-items: center;
+        }
+
+        .change-field {
+            font-weight: 600;
+            min-width: 100px;
+        }
+
+        .arrow {
+            color: #6b7280;
+            font-weight: bold;
+        }
+
+        small { color: #6b7280; }
+
+ 
+        /* Keep existing styles... */
+
+    /* Table row hover - all text inside turns white */
+    .history-table tbody tr:hover,
+    .history-table tbody tr:hover * {
+        color: #ffffff !important;
+    }
+
+    .vlan-table tbody tr:hover,
+    .vlan-table tbody tr:hover * {
+        color: #ffffff !important;
+    }
+
+
+    /* Optional: change badge background to a darker color for contrast */
+    .history-table tbody tr:hover .badge-success { background-color: #16a34a !important; }
+    .history-table tbody tr:hover .badge-warning { background-color: #78350f !important; }
+    .history-table tbody tr:hover .badge-danger { background-color: #991b1b !important; }
+
+      /* Add horizontal scroll for tables */
+    .btn-custom-blue {
+    background-color: #00319f;
+    border-color: #00319f;
+    color: #fff; /* Ensure text is readable */
+    }
