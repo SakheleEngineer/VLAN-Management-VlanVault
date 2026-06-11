@@ -11,10 +11,22 @@ router.register(r'vlan-activities', VlanActivityViewSet, basename='vlan-activiti
 router.register(r"tags", TagViewSet, basename="tag")
 
 urlpatterns = [
-    # ✅ ViewSet routes
     path('', include(router.urls)),
+    path(
+        "csv-audit-results/",
+        csv_audit_results,
+        name="csv-audit-results"
+    ),
+    path(
+        "csv-audit-download/",
+        download_csv_audit,
+        name="csv-audit-download"
+    ),
 
-    # ✅ Custom standalone endpoint
     path('get-tagdata/', GetTagDataAPIView.as_view(), name='get-tagdata'),
 ]
 
+
+urlpatterns += [
+   
+]

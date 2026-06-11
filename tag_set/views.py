@@ -41,6 +41,10 @@ class TagRangeViewSet(ModelViewSet):
         ).order_by('datacenter_priority', 'datacenter__region', 'vlan_start', 'vlan_end')
 
         form = TagRangeForm()
+        # Annotate access for each tag range
+        for tag in queryset:
+            tag.has_access = tag.user_has_access(request.user)
+
         return render(request, 'tag_sets.html', {
             'tagsets': queryset,
             'rangeForm': form

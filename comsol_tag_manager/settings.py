@@ -16,6 +16,7 @@ import os
 
 from pathlib import Path
 from decouple import config
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -175,12 +176,18 @@ CACHES = {
 }
 
 
-from celery.schedules import crontab
+
+# CELERY_BEAT_SCHEDULE = {
+#     "fetch-data-every-10-minutes": {
+#         "task": "tag.tasks.fetch_and_cache_data",
+#         "schedule": crontab(minute="*/10"),  # every 10 minutes
+#     },
+# }
 
 CELERY_BEAT_SCHEDULE = {
-    "fetch-data-every-10-minutes": {
+    "fetch-data-every-2-minutes": {
         "task": "tag.tasks.fetch_and_cache_data",
-        "schedule": crontab(minute="*/10"),  # every 10 minutes
+        "schedule": crontab(minute="*/2"),  # every 2 minutes
     },
 }
 
@@ -189,14 +196,14 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.TokenAuthentication',
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ],
+# }
 
 
 LOGIN_URL = '/login/'

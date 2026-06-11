@@ -1,6 +1,4 @@
 from django.contrib import admin
-
-from django.contrib import admin
 from .models import TagRange
 
 
@@ -33,6 +31,12 @@ class TagRangeAdmin(admin.ModelAdmin):
         "uuid",
     )
 
+    # Makes ManyToMany easier to manage
+    filter_horizontal = (
+        "groups",
+        "stags",
+    )
+
     fieldsets = (
         (
             "Tag Range Details",
@@ -41,6 +45,8 @@ class TagRangeAdmin(admin.ModelAdmin):
                     "name",
                     "vlan_start",
                     "vlan_end",
+                    "groups",   # ADD THIS
+                    "stags",    # optional
                 )
             },
         ),
@@ -62,4 +68,3 @@ class TagRangeAdmin(admin.ModelAdmin):
             },
         ),
     )
-

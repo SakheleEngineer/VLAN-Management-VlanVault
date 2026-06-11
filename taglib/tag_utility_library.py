@@ -1,5 +1,6 @@
 
 from django.db import transaction
+from django.core.cache import cache
 from company.models import Company
 from tag.models import Tag
 from tag_set.models import TagRange
@@ -8,6 +9,9 @@ import re
 import requests
 import json
 from decouple import config
+import csv
+from io import TextIOWrapper
+from django.core.exceptions import ValidationError
 
 SNOW_URL = config("SNOW_URL")
 CLIENT_ID = config("CLIENT_ID")
@@ -64,21 +68,36 @@ def allocate_first_free_tag_from_ranges(serviceData, tag_ranges):
 
 
 def search_and_reserve_vlan(serviceData):
-    print(serviceData)
-    
     company = get_account(serviceData["name"],serviceData["number"])
-    region = normalize_string(serviceData["province"])
-    data_center = get_data_center(region)
+    province = normalize_string(serviceData["province"])
+    data_center = get_data_center(province)
 
     tag_ranges = TagRange.objects.filter(
         datacenter=data_center.id,
         company=company
-
     )
+    configuration_settings = ConfigurationSettings.objects.filter(
+    product_name=serviceData["service"],delivery_type=serviceData["delevary_type"],configuration_type="vpls").first()
     if tag_ranges:
+        if configuration_settings:
+            existing_tag = Tag.objects.filter(
+                vlan_range__in=tag_ranges,
+                configuration_settings=configuration_settings
+            ).first()
+            if existing_tag:
+                return existing_tag
+
         return allocate_first_free_tag_from_ranges(serviceData,tag_ranges)
     else:
         company = get_account("primary")
+        if configuration_settings:
+            existing_tag = Tag.objects.filter(
+                vlan_range__in=tag_ranges,
+                configuration_settings=configuration_settings
+            ).first()
+            if existing_tag:
+               return existing_tag
+            
         comsol_ranges = TagRange.objects.filter(
             datacenter=data_center.id,
             company=company
@@ -165,7 +184,6 @@ def get_snow_service_data(token, service_id):
 
         response = requests.request("GET", url, headers=headers, data=payload)
         response.raise_for_status()
-        print(response.text)
         data = response.json()
         print("Parsed JSON:", data)
         results = data.get("result", [])
@@ -206,4 +224,153 @@ def get_snow_service_data(token, service_id):
 
     return None
 
+def create_tags_from_csv(tag_range, csv_file):
+    """
+    Upload tags from CSV and return:
+    - successfully created tags
+    - skipped/occupied tags
+    - validation errors
+    """
 
+    audit_tag_list = []
+    occupied = []
+    errors = []
+
+    # Get already used VLANs in this range
+    existing_vlans = set(
+        Tag.objects.filter(vlan_range=tag_range)
+        .values_list("vlan", flat=True)
+    )
+
+    # Start VLAN allocation from range start
+    current_vlan = tag_range.vlan_start
+
+    # Read CSV
+    file_data = TextIOWrapper(csv_file.file, encoding="utf-8")
+    reader = csv.DictReader(file_data)
+
+    with transaction.atomic():
+
+        for row in reader:
+
+            # Skip occupied VLANs
+            while current_vlan in existing_vlans:
+                occupied.append(current_vlan)
+                current_vlan += 1
+
+            # Stop if range exceeded
+            if current_vlan > tag_range.vlan_end:
+                errors.append({
+                    "name": row.get("Name", ""),
+                    "error": "No VLANs left in range"
+                })
+                break
+
+            try:
+
+                tag = Tag(
+                    vlan=current_vlan,
+                    division=row.get("Division", "").strip(),
+                    customer=row.get("Customer", "").strip(),
+                    name=row.get("Name", "").strip(),
+                    access_hs=row.get("Access HS", "").strip(),
+                    sector=row.get("", "").strip(),  # Empty column F in sheet
+                    usage=row.get("Usage", "").strip(),
+                    service=row.get("Service", "").strip(),
+                    speed=row.get("Speed", "").strip(),
+                    circ_no=row.get("Circ No", "").strip(),
+                    vlan_range=tag_range,
+                )
+
+                temp_result = audit_tag(tag)
+                if temp_result == "success":
+                    tag.full_clean()
+                    tag.save()
+
+                    audit_tag_list.append({
+                        "vlan": current_vlan,
+                        "tag": tag,
+                        "status": temp_result,
+                    })
+
+                else:
+                    audit_tag_list.append({
+                        "vlan": current_vlan,
+                        "tag": tag,
+                        "status": temp_result,
+                    })
+
+
+                existing_vlans.add(current_vlan)
+                current_vlan += 1
+
+            except ValidationError as e:
+                errors.append({
+                    "name": row.get("Name", ""),
+                    "error": e.message_dict if hasattr(e, "message_dict") else str(e)
+                })
+
+            except Exception as e:
+                errors.append({
+                    "name": row.get("Name", ""),
+                    "error": str(e)
+                })
+
+    return {
+        "audit_list": audit_tag_list,
+        "occupied": occupied,
+        "errors": errors,
+    }
+
+
+def audit_tag(tag):
+    #check if tag is not in use and if it is not reserved for another service
+    tag_value = cache.get(tag.Service_id)
+
+    if Tag.objects.filter(Service_id=tag.Service_id).exists():
+        return "The service already in use"
+
+    if tag_value:
+        if tag_value["status"] == "Decommissioned" and tag_value["cpe_reachable"] != True:
+            return "The CPE is reachable, but the service is decommissioned, please investigate further"
+
+        if tag_value["cpe_reachable"] == False:
+            return "The CPE is not reachable"
+
+        if tag_value["status"] != "Decommissioned" and tag_value["cpe_reachable"] == True:
+            return "Decommissioned"
+        else:
+            return "success"
+    else:
+        return "The service has no TS or SHF on Service Now, please investigate further"
+
+
+def get_service_handover_form_data(token):
+
+    import requests
+
+    url = f"{SNOW_URL}api/now/table/u_comsol_networks_shf?sysparm_fields=u_svid%2C%20u_svid_2%2C%20u_client_radio_ip%2C%20u_circuit_id%2C%20u_service_id&sysparm_limit=5"
+
+    payload = {}
+    headers = {
+       'Authorization': f'Bearer {token}'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+    return response.json().get("result", [])
+
+def get_terminal_station_data(token, service_id):
+
+    url = f"{SNOW_URL}api/now/table/u_cmdb_comsol_terminal_station?sysparm_query=u_service_id%3D{service_id}&sysparm_fields=u_initiated_from.cat_item.name%2Cu_service_id%2Cu_state&sysparm_limit=10"
+
+    payload = {}
+    headers = {
+       'Authorization': f'Bearer {token}'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+    return response.json().get("result", [])

@@ -28,6 +28,7 @@ class TagForm(forms.ModelForm):
             'Service_id': 'Service ID',
             'comment': 'Comments',
             'vlan_range': 'VLAN Range',
+            'configuration_settings': 'MPLS Configuration',
         }
         help_texts = {
             'Service_id': 'Enter the ServiceNow Service ID to auto-fill service details.',
@@ -46,6 +47,7 @@ class TagForm(forms.ModelForm):
             'comment': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
             'vlan': forms.NumberInput(attrs={'class': 'form-control form-control-sm','disabled': 'disabled'}),
             'vlan_range': forms.Select(attrs={'class': 'form-control form-control-sm ','disabled': 'disabled'}),
+            'configuration_settings': forms.Select(attrs={'class': 'form-control form-control-sm '}),
         }
 
     def clean_vlan(self):

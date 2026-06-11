@@ -6,6 +6,16 @@ from django.db import models
 from tag_set.models import * 
 from simple_history.models import HistoricalRecords
 
+
+class ConfigurationSettings(models.Model):
+    product_name = models.CharField(max_length=100)
+    service_name = models.CharField(max_length=100)
+    configuration_type = models.CharField(max_length=100)
+    delivery_type = models.CharField(max_length=100)
+    def __str__(self):
+        return self.product_name
+
+
 class Tag(models.Model):
     vlan       = models.PositiveIntegerField()
     division   = models.CharField(max_length=200, blank=True)
@@ -20,8 +30,15 @@ class Tag(models.Model):
     Service_id = models.CharField(max_length=200, blank=True)
     comment    = models.CharField(max_length=200, blank=True)
     vlan_range = models.ForeignKey(TagRange, on_delete=models.CASCADE)
+    configuration_settings = models.ForeignKey(
+        ConfigurationSettings,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tags"
+    )
 
-    history = HistoricalRecords()  # 🔥 THIS LINE
+    history = HistoricalRecords()  
 
     def clean(self):
         if not (self.vlan_range.vlan_start <= self.vlan <= self.vlan_range.vlan_end):
@@ -41,6 +58,5 @@ class VlanActivity(models.Model):
 
     def __str__(self):
         return f"[{self.level}] VLAN {self.vlan_id}: {self.message}"
-
 
 

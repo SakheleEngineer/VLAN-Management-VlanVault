@@ -1,6 +1,6 @@
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
@@ -37,3 +37,8 @@ def change_password_view(request):
         messages.success(request, "Password changed successfully!")
         return redirect("/")
     return render(request, "account/change_password.html", {"form": form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")  # change to your login URL name

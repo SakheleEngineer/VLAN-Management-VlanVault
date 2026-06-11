@@ -1,6 +1,13 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
 
+
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">Vlan-vault Administration</a>
+</h1>
+{% endblock %}
+
 {% block extrahead %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">

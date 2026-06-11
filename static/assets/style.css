@@ -6,7 +6,7 @@ body { background:#f4f6f9; color:#333; }
 
 /* Sidebar */
 .sidebar {
-    width: 280px; /* increased width like ServiceNow */
+    width: 300px; /* wider sidebar */
     background:#1f2937;
     color:#fff;
     padding:20px;
@@ -25,16 +25,25 @@ body { background:#f4f6f9; color:#333; }
     gap:8px; /* wider gap for larger sidebar */
     background:#374151;
     padding:12px 19px; /* horizontal padding increased */
-    border-radius:6px;
+    border-radius:4px;
     color:#fff;
     margin-bottom:8px;
-    font-weight:500;
+    font-weight:  300px;
+   
 }
 .sidebar .nav-link i {
     min-width:20px; /* more space for icons */
     text-align:center;
     color:#9ca3af;
 }
+
+
+.sidebar .nav-link span {
+    color:#9ca3af;
+}
+
+
+
 .sidebar .nav-link:hover {
     background:#374151;
     color:#fff;
@@ -104,9 +113,25 @@ body { background:#f4f6f9; color:#333; }
     margin-right: 7px; /* Adjust spacing as needed */
 }
     /* Custom Button */
-    .btn-custom-blue {
-        padding:8px 14px; border-radius:4px;border-color: gray; background:#00319f; color:white; margin-right:10px;
-    }
+    #btn-custom-blue {
+          padding:8px 14px; border-radius:4px; margin-right:10px;
+    
+
+      
+            background: linear-gradient(90deg, #2f2f4f, #1f2937);
+            border: none;
+            color: white;
+            padding: 10px;
+            font-weight: 500;
+            font-size: 12px;
+            border-radius: 6px;
+            transition: 0.3s ease;
+        }
+
+        #btn-custom-blue:hover {
+            opacity: 0.9;
+        }
+
 
     /* Fixed Sidebar */
     .sidebar {
@@ -120,7 +145,7 @@ body { background:#f4f6f9; color:#333; }
 
     /* Main content moves right to make room for sidebar */
     .main-content {
-        margin-left: 280px; /* same as sidebar width */
+        margin-left: 300px;
         padding: 30px;
     }
 
@@ -171,6 +196,7 @@ body { background:#f4f6f9; color:#333; }
     width: 80%; /* slightly smaller than current 80% */
 }
 
+
 .table-responsive {
     border-radius: 4px;
     /* overflow: hidden; ensures the table corners follow the radius */
@@ -178,25 +204,25 @@ body { background:#f4f6f9; color:#333; }
 }
 
 .table {
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 /* round the header corners */
 .table thead th:first-child {
-    border-top-left-radius: 4px;
+    border-top-left-radius: 6px;
 }
 
 .table thead th:last-child {
-    border-top-right-radius: 4px;
+    border-top-right-radius: 6px;
 }
 
 /* round the bottom corners */
 .table tbody tr:last-child td:first-child {
-    border-bottom-left-radius: 4px;
+    border-bottom-left-radius: 6px;
 }
 
 .table tbody tr:last-child td:last-child {
-    border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 6px;
 }
 
 
@@ -218,7 +244,7 @@ body { background:#f4f6f9; color:#333; }
    /* General styling */
         h5 {
             margin-bottom: 20px;
-            font-weight: 600;
+            font-weight: 360;
         }
 
         .history-table th {
@@ -227,14 +253,14 @@ body { background:#f4f6f9; color:#333; }
         }
 
         .badge {
-            padding: 4px 8px;
+        
             border-radius: 4px;
             font-weight: 500;
         }
 
-        .badge-success { background-color: #d1fae5; color: #065f46; }
-        .badge-warning { background-color: #fef3c7; color: #78350f; }
-        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+        .badge-success {  color: #065f46; }
+        .badge-warning {color: #78350f; }
+        .badge-danger {  color: #991b1b; }
 
         .change-old { color: #dc2626; font-weight: 500; }
         .change-new { color: #16a34a; font-weight: 500; }
@@ -279,8 +305,282 @@ body { background:#f4f6f9; color:#333; }
     .history-table tbody tr:hover .badge-danger { background-color: #991b1b !important; }
 
       /* Add horizontal scroll for tables */
-    .btn-custom-blue {
-    background-color: #00319f;
-    border-color: #00319f;
-    color: #fff; /* Ensure text is readable */
-    }
+   
+
+/* ── Outer wrapper (title bar + table card) ── */
+.modern-table .table-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 13.5px;
+  font-family: inherit;
+}
+
+/* ── Title bar ── */
+.modern-table .table-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+
+.modern-table .table-card-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.modern-table .table-card-count {
+  font-size: 12px;
+  color: #888;
+}
+
+/* ── Scroll wrapper ── */
+.modern-table .table-responsive {
+  overflow-x: auto;
+}
+
+/* ── Table base ── */
+.modern-table .table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* ── Header ── */
+.modern-table .table thead {
+  background: #f7f7f5; /* use your --color-background-secondary */
+}
+
+.modern-table .table thead th {
+  padding-top: 12px ;
+  /* font-size: 13px;
+  font-weight: 470;
+  letter-spacing: 0.04em; */
+  text-transform: uppercase;
+  color: white; /* use your --color-text-secondary */
+  border-bottom: 0.7px solid white;
+  white-space: nowrap;
+
+}
+
+.modern-table .table thead .first{
+  margin-left: 100px;
+
+}
+
+
+/* ── Body rows ── */
+.modern-table .table tbody tr {
+  border-bottom: 0.7px solid rgba(0, 0, 0, 0.08);
+  transition: background 0.12s;
+  margin-bottom: -50px;
+}
+
+.modern-table .table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.modern-table .table tbody tr:hover {
+    background: #374151;
+    color: #fff;
+    transition: 0.2s;
+
+}
+
+.modern-table .table tbody td {
+  padding: 4px 0 4px 12px;
+}
+
+/* ── Cell: primary + secondary text ── */
+.modern-table .cell-primary {
+  font-weight: 500;
+  color: gray; /* --color-text-primary */
+}
+
+.modern-table .cell-secondary {
+  font-size: 12px;
+  color: #888; /* --color-text-secondary */
+  margin-top: 1px;
+}
+
+.modern-table .cell-secondary:hover {
+
+  color: #ffffff; /* --color-text-secondary */
+ 
+}
+
+/* ── Status badges ── */
+.modern-table .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.modern-table .badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Success / Active */
+.modern-table .badge-success {
+  background: #eaf3de;
+  color: #3b6d11;
+}
+.modern-table .badge-success .dot { background: #3b6d11; }
+
+/* Warning / At risk */
+.modern-table .badge-warn {
+  background: #faeeda;
+  color: #854f0b;
+}
+.modern-table .badge-warn .dot { background: #854f0b; }
+
+/* Info / In review */
+.modern-table .badge-info {
+  background: #e6f1fb;
+  color: #185fa5;
+}
+.modern-table .badge-info .dot { background: #185fa5; }
+
+/* Danger / Blocked */
+.modern-table   .badge-danger {
+  background: #fcebeb;
+  color: #a32d2d;
+}
+.modern-table.badge-danger .dot { background: #a32d2d; }
+
+/* ── Avatar ── */
+.modern-table .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modern-table .avatar-default { background: #e6f1fb; color: #185fa5; }
+.modern-table .avatar-warning  { background: #faeeda; color: #854f0b; }
+.modern-table .avatar-success  { background: #eaf3de; color: #3b6d11; }
+.modern-table .avatar-danger   { background: #fcebeb; color: #a32d2d; }
+
+/* ── Assignee cell ── */
+.modern-table .assignee {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Budget / numeric columns ── */
+.modern-table .col-numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Actions column ── */
+.main-content .col-actions {
+  text-align: center;
+  color: #888;
+  cursor: pointer;
+}
+
+/* Align rows and columns properly */
+.modern-table .table th,
+.modern-table .table td {
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* Keep column widths aligned */
+.modern-table .table {
+    table-layout: fixed;
+}
+
+/* Optional: consistent row height */
+.modern-table .table tbody tr {
+    height: 52px;
+}
+
+
+#editVlan{
+    background: linear-gradient(90deg, #2f2f4f, #1f2937);
+    border: none;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: 0.3s ease;
+}
+
+
+
+
+.filter-bar{
+    background:#fff;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.sortable{
+    cursor:pointer;
+    user-select:none;
+}
+
+.sortable:hover{
+    color:#007bff;
+}
+
+.table tbody tr{
+    transition:.2s;
+}
+
+.table tbody tr:hover{
+    background:#f8f9fa;
+}
+
+
+.filter-bar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter-bar .nav-item {
+    margin: 0;
+}
+
+.filter-bar select,
+.filter-bar button {
+    width: auto;
+    min-width: 180px;
+}
+
+.filter-bar button {
+    white-space: nowrap;
+}
+
+
+.table tbody tr:hover {
+    background: #374151;
+    color: #fff;
+    transition: 0.2s;
+
+}
