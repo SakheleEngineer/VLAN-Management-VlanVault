@@ -16,8 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
 @api_view(["POST"])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+
 def generate_token(request):
     username = request.data.get("username")
     password = request.data.get("password")
@@ -97,7 +96,7 @@ def retrieve_resource(request, Service_id):
 @permission_classes([IsAuthenticated])
 def create_resource(request):
     data = request.data
-    service_id = data.get("name")
+    service_id = str(data.get("name"))
     if not service_id:
         return Response({"error": "VLAN value required"}, status=400)
 
@@ -105,7 +104,7 @@ def create_resource(request):
     snow_data = get_snow_service_data(token, service_id)
     allocated_tag = search_and_reserve_vlan(snow_data)
     if not allocated_tag:
-        return Response({"error": "No available VLANs found"}, status=400)
+        return Response({"error": "No available VLANs found" + str(allocated_tag) }, status=400)
     serializer = TagResourceSerializer(allocated_tag)
     return Response(serializer.data, status=201)
 
@@ -140,10 +139,29 @@ def patch_resource(request, service_id):
 
 
 # DELETE RESOURCE
+
 @api_view(["DELETE"])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_resource(request, Service_id):
-    tag = get_object_or_404(Tag, Service_id=Service_id)
-    tag.delete()
-    return Response(status=204)
+
+    tags = Tag.objects.filter(Service_id=Service_id)
+
+    if not tags.exists():
+        return Response(
+            {
+                "detail": f"No resources found for Service_id '{Service_id}'."
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    deleted_count, deleted_details = tags.delete()
+
+    return Response(
+        {
+            "message": f"Successfully deleted all resources for Service_id '{Service_id}'.",
+            "service_id": Service_id,
+            "deleted_count": deleted_count,
+        },
+        status=status.HTTP_200_OK
+    )

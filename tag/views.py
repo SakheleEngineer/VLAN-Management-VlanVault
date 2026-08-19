@@ -35,11 +35,12 @@ from django.urls import reverse
 from datetime import datetime
 from django.http import HttpResponse
 from datetime import datetime
+from reportlab.lib.enums import TA_CENTER
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import enums
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -72,6 +73,7 @@ class TagViewSet(ModelViewSet):
         uuid_obj = uuid.UUID(uuid_str)
         if uuid:
             tag_range = get_object_or_404(TagRange, uuid=uuid_obj)
+            has_accsess = tag_range.user_has_access(request.user)
             tags = Tag.objects.filter(vlan_range=tag_range).order_by('vlan')
             rangeForm = TagRangeForm(instance= tag_range)
             # Initialize the form with the default vlan_range
@@ -130,7 +132,8 @@ class TagViewSet(ModelViewSet):
                 'tags':      tags,
                 'rangeForm': rangeForm,
                 'form':      form,
-                'rows':      rows
+                'rows':      rows,
+                'has_accsess': has_accsess
             }
         )
 
@@ -373,24 +376,42 @@ def download_csv_audit(request):
     elements.append(info_table)
     elements.append(Spacer(1, 15))
 
-    elements.append(
-        Paragraph(
-            "Audit Summary",
-            section_style,
-        )
+    # ==================================================
+    # AUDIT SUMMARY
+    # ==================================================
+
+    summary_width = 450
+
+    summary_header = Table(
+        [["Audit Summary"]],
+        colWidths=[summary_width]
     )
+
+    summary_header.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#16324F")),
+            ("TEXTCOLOR", (0, 0), (-1, -1), colors.white),
+            ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 11),
+            ("LEFTPADDING", (0, 0), (-1, -1), 8),
+            ("TOPPADDING", (0, 0), (-1, -1), 6),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ])
+    )
+
+    elements.append(summary_header)
 
     summary_data = [
         ["Metric", "Value"],
         ["Total Records Processed", str(len(audit_list))],
         ["Successful Reservations", str(success_count)],
         ["Failed Reservations", str(failed_count)],
-        ["Validation Errors", str(len(errors))],
+        ["Validation Errors", str(len(errors))]
     ]
 
     summary_table = Table(
         summary_data,
-        colWidths=[300, 150],
+        colWidths=[300, 150]
     )
 
     summary_table.setStyle(
@@ -399,22 +420,43 @@ def download_csv_audit(request):
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
             ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#D1D5DB")),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1),
-             [colors.white, colors.HexColor("#F8FAFC")]),
+            ("ROWBACKGROUNDS",
+            (0, 1), (-1, -1),
+            [colors.white, colors.HexColor("#F8FAFC")]),
             ("FONTSIZE", (0, 0), (-1, -1), 9),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ])
     )
 
     elements.append(summary_table)
     elements.append(Spacer(1, 18))
 
-    elements.append(
-        Paragraph(
-            "Audit Results",
-            section_style,
-        )
+
+
+    audit_header = Table(
+        [["Audit Results"]],
+        colWidths=[490]
     )
+
+    audit_header.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1),
+            colors.HexColor("#16324F")),
+            ("TEXTCOLOR", (0, 0), (-1, -1),
+            colors.white),
+            ("FONTNAME", (0, 0), (-1, -1),
+            "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1),
+            11),
+            ("LEFTPADDING", (0, 0), (-1, -1),
+            8),
+            ("TOPPADDING", (0, 0), (-1, -1),
+            6),
+            ("BOTTOMPADDING", (0, 0), (-1, -1),
+            6),
+        ])
+    )
+
+    elements.append(audit_header)
 
     audit_table_data = [[
         Paragraph("VLAN", table_header_style),

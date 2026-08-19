@@ -584,3 +584,74 @@ body { background:#f4f6f9; color:#333; }
     transition: 0.2s;
 
 }
+
+#new-blue{
+    background: linear-gradient(90deg, #2f2f4f, #1f2937);
+    border: none;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: 0.3s ease;
+}
+
+#decommissionBtn{
+    background: linear-gradient(90deg, #2f2f4f, #1f2937);
+    border: none;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: 0.3s ease;
+}
+
+
+#editVlanNew{
+     background: linear-gradient(90deg, #2f2f4f, #1f2937);
+    border: none;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: 0.3s ease;
+}
+
+#decommissionBtnNew{
+    background: linear-gradient(90deg, #2f2f4f, #1f2937);
+    border: none;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: 0.3s ease;
+
+}
+
+#new-blue-pull-data{
+    background: linear-gradient(90deg, #2f2f4f, #1f2937);
+    border: none;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: 0.3s ease;
+
+}
+
+
+#serviceIdSubmit{
+    background: linear-gradient(90deg, #2f2f4f, #1f2937);
+    border: none;
+    color: white;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: 0.3s ease;
+
+}

@@ -2,7 +2,7 @@
 from django.db import transaction
 from django.core.cache import cache
 from company.models import Company
-from tag.models import Tag
+from tag.models import Tag, ConfigurationSettings
 from tag_set.models import TagRange
 from region.models import Region
 import re
@@ -12,6 +12,13 @@ from decouple import config
 import csv
 from io import TextIOWrapper
 from django.core.exceptions import ValidationError
+import subprocess
+import platform
+import socket
+import json
+from psycopg2.extras import execute_values
+from celery import shared_task
+from django.db import connection
 
 SNOW_URL = config("SNOW_URL")
 CLIENT_ID = config("CLIENT_ID")
@@ -71,6 +78,7 @@ def search_and_reserve_vlan(serviceData):
     company = get_account(serviceData["name"],serviceData["number"])
     province = normalize_string(serviceData["province"])
     data_center = get_data_center(province)
+    print("data_center: "+str(company.name)+" "+str(data_center))
 
     tag_ranges = TagRange.objects.filter(
         datacenter=data_center.id,
@@ -79,6 +87,7 @@ def search_and_reserve_vlan(serviceData):
     configuration_settings = ConfigurationSettings.objects.filter(
     product_name=serviceData["service"],delivery_type=serviceData["delevary_type"],configuration_type="vpls").first()
     if tag_ranges:
+        #getting a shared VLAN
         if configuration_settings:
             existing_tag = Tag.objects.filter(
                 vlan_range__in=tag_ranges,
@@ -89,7 +98,15 @@ def search_and_reserve_vlan(serviceData):
 
         return allocate_first_free_tag_from_ranges(serviceData,tag_ranges)
     else:
-        company = get_account("primary")
+        #get primary company 
+        primary_company = None
+        try:
+            primary_company = Company.objects.get(companytype="primary")
+        except Company.DoesNotExist:
+            primary_company = None
+   
+        company = get_account(primary_company.name,code=primary_company.code)
+        #getting comsol or primary company shared VLAN
         if configuration_settings:
             existing_tag = Tag.objects.filter(
                 vlan_range__in=tag_ranges,
@@ -102,30 +119,28 @@ def search_and_reserve_vlan(serviceData):
             datacenter=data_center.id,
             company=company
         )
-        print(comsol_ranges)
+        
         return allocate_first_free_tag_from_ranges(serviceData,comsol_ranges)
         
-        
 def get_account(account, code=None):
-    if code:
-        # If code is provided, match both name and code
-        company, created = Company.objects.get_or_create(
-            name=account,
-            code=code,
-            defaults={
-                'country': 'ZA',
-            }
-        )
-    else:
-        # If code is not provided, match only by name
-        company, created = Company.objects.get_or_create(
-            companytype=account,
-            defaults={
-                'country': 'ZA',
-                'code': '',  # optional: set a default code if needed
-            }
-        )
+    company, created = Company.objects.get_or_create(
+        name=account)
+  
     return company
+# def get_account(account, code=None):
+#     company, created = Company.objects.get_or_create(
+#         name=account,
+#         defaults={
+#             'country': 'ZA',
+#             'code': code or '',
+#         }
+#     )
+
+#     if not created and code and company.code != code:
+#         company.code = code
+#         company.save(update_fields=['code'])
+
+#     return company
 
 def get_data_center(region_name):
     try:
@@ -328,16 +343,16 @@ def audit_tag(tag):
     tag_value = cache.get(tag.Service_id)
 
     if Tag.objects.filter(Service_id=tag.Service_id).exists():
-        return "The service already in use"
+        return "The ServiceID is in use"
 
     if tag_value:
-        if tag_value["status"] == "Decommissioned" and tag_value["cpe_reachable"] != True:
+        if tag_value["status"] == "Decommissioned" and tag_value["cpe_reachable"] == True:
             return "The CPE is reachable, but the service is decommissioned, please investigate further"
 
         if tag_value["cpe_reachable"] == False:
             return "The CPE is not reachable"
 
-        if tag_value["status"] != "Decommissioned" and tag_value["cpe_reachable"] == True:
+        if tag_value["status"] == "Decommissioned" and tag_value["cpe_reachable"] == False:
             return "Decommissioned"
         else:
             return "success"
@@ -357,8 +372,6 @@ def get_service_handover_form_data(token):
     }
 
     response = requests.request("GET", url, headers=headers, data=payload)
-
-    print(response.text)
     return response.json().get("result", [])
 
 def get_terminal_station_data(token, service_id):
@@ -371,6 +384,115 @@ def get_terminal_station_data(token, service_id):
     }
 
     response = requests.request("GET", url, headers=headers, data=payload)
-
-    print(response.text)
     return response.json().get("result", [])
+
+
+def get_existing_services():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                service_id,
+                service_data
+            FROM service_cache
+        """)
+
+        return {
+            row[0]: row[1]
+            for row in cursor.fetchall()
+        }
+
+def check_cpe_reachable(ip, ports=(80, 443, 23, 22), timeout=2):
+    """
+    Returns True if any of the specified ports are reachable.
+    """
+    if not ip:
+        return False
+
+    for port in ports:
+        try:
+            with socket.create_connection((ip, port), timeout=timeout):
+                return True
+        except Exception:
+            continue
+
+    return False
+
+
+
+def bulk_upsert_services(merged_list):
+    """
+    Bulk upsert all merged services into PostgreSQL RDS.
+    """
+    rows = []
+    for item in merged_list:
+
+        rows.append(
+            (
+                item.get("u_service_id"),
+                item.get("u_svid") or item.get("u_svid_2"),
+                json.dumps(item),
+                item.get("cpe_reachable", False),
+            )
+        )
+
+    if not rows:
+        return
+
+    # New service → INSERT
+    # Existing service with changed data → UPDATE
+    # Existing service with identical data → DO NOTHING
+
+    sql = """
+        INSERT INTO service_cache (
+            service_id,
+            svid,
+            service_data,
+            cpe_reachable
+        )
+        VALUES %s
+        ON CONFLICT (service_id)
+        DO UPDATE SET
+            svid = EXCLUDED.svid,
+            service_data = EXCLUDED.service_data,
+            cpe_reachable = EXCLUDED.cpe_reachable,
+            updated_at = NOW()
+        WHERE
+            service_cache.service_data IS DISTINCT FROM EXCLUDED.service_data
+            OR service_cache.cpe_reachable IS DISTINCT FROM EXCLUDED.cpe_reachable
+    """
+
+    with connection.cursor() as cursor:
+        execute_values(
+            cursor,
+            sql,
+            rows,
+            page_size=1000
+        )
+
+def get_all_services():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT service_data
+            FROM service_cache
+            ORDER BY service_id
+        """)
+
+        return [row[0] for row in cursor.fetchall()]
+
+
+
+def Build_Global_Audit_Catch(aws_merged_list):
+    for item in aws_merged_list:
+        cache_key = item.get("u_service_id")
+        # Cache individual service
+        cache.set(
+            cache_key,
+            item,
+            timeout=3600
+        )
+    
+    redis_client = cache.client.get_client()

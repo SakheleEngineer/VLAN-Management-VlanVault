@@ -15,7 +15,6 @@ class ConfigurationSettings(models.Model):
     def __str__(self):
         return self.product_name
 
-
 class Tag(models.Model):
     vlan       = models.PositiveIntegerField()
     division   = models.CharField(max_length=200, blank=True)
@@ -37,8 +36,15 @@ class Tag(models.Model):
         blank=True,
         related_name="tags"
     )
-
-    history = HistoricalRecords()  
+    history = HistoricalRecords()
+    def save(self, *args, **kwargs):
+        if self.configuration_settings_id is None:
+            self.configuration_settings = ConfigurationSettings.objects.filter(
+                product_name="dedicated",
+                configuration_type="EPIPE",
+                delivery_type="Layer 2"
+            ).first()
+        super().save(*args, **kwargs)  
 
     def clean(self):
         if not (self.vlan_range.vlan_start <= self.vlan <= self.vlan_range.vlan_end):
